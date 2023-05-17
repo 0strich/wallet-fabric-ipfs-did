@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/v1/fabric", fabricRouter);
-app.use("/v1/ipfs", ipfsRouter);
+// app.use("/v1/ipfs", ipfsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
