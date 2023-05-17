@@ -1,23 +1,30 @@
 {
-  "name": "wallet",
+  "name": "node-boilerplate",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "app-module-path": "^2.2.0",
+    "axios": "^1.3.4",
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "crypto-js": "^4.1.1",
     "debug": "~2.6.9",
+    "dotenv": "^16.0.3",
     "express": "~4.16.1",
-    "fabric-ca-client": "^2.2.17",
-    "fabric-common": "^2.2.17",
-    "fabric-network": "^2.2.17",
-    "fs": "0.0.1-security",
+    "express-validator": "^6.15.0",
+    "fabric-ca-client": "^2.2.18",
+    "fabric-network": "^2.2.18",
     "http-errors": "~1.6.3",
-    "ipfs-http-client": "^56.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^5.13.15",
     "morgan": "~1.9.1",
-    "nodemon": "^2.0.22",
-    "path": "^0.12.7",
-    "pug": "2.0.0-beta11"
+    "nodemon": "^2.0.21",
+    "pug": "2.0.0-beta11",
+    "urlencode": "^1.1.0",
+    "uuid": "^9.0.0"
   }
 }

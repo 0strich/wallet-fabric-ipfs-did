@@ -1,1 +1,1 @@
-# wallet-fabric-ipfs-did
+# node-boilerplate
