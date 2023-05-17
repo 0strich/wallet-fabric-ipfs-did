@@ -10,6 +10,7 @@ const HOME = "/Users/patric/fabric-samples";
 router.get("/get/:enrollmentID", async (req, res, next) => {
   try {
     const { enrollmentID } = req.params;
+    console.log("enrollmentID: ", enrollmentID);
 
     // Create a new file system based wallet for managing identities.
     const walletPath = path.join(process.cwd(), "wallet");
@@ -88,6 +89,7 @@ router.post("/post", async (req, res, next) => {
   }
 });
 
+// 관리자 계정 생성
 router.post("/enrollAdmin", async (req, res, next) => {
   try {
     // load the network configuration
