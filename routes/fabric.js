@@ -5,7 +5,7 @@ const { Wallets, Gateway } = require("fabric-network");
 const path = require("path");
 const fs = require("fs");
 
-const HOME = "/Users/patric/fabric-samples";
+const HOME = "/home/hyper/fabric-samples";
 
 router.get("/get/:enrollmentID", async (req, res, next) => {
   try {
