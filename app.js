@@ -24,6 +24,7 @@ const logger = require("morgan");
 
 const indexRouter = require("routes/index");
 const usersRouter = require("routes/users");
+const fabricRouter = require("routes/fabric");
 
 const version = "/v1";
 
@@ -47,6 +48,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(`/${version}/`, indexRouter);
 app.use(`/${version}/users`, usersRouter);
+app.use(`/${version}/fabric`, fabricRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

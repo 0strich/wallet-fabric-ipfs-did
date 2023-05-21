@@ -2,7 +2,7 @@ const { Wallets, Gateway } = require("fabric-network");
 const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
-const { ccpPath, walletPath } = require("../utils/utils");
+const { ccpPath, walletPath } = require("../utils");
 
 // 관리자 생성
 const enrollAdmin = async (req, res, next) => {
