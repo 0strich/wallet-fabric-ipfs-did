@@ -412,3 +412,4 @@ logs/*
 # FCM
 firebase-admin-sdk.json
 
+wallet
