@@ -75,11 +75,8 @@ const register = (object) => {
 // 프로필 정보(노출)
 const profileInfo = (object) => {
   return {
-    email: object?.userCredentials?.email,
-    name: object?.profile?.name,
-    phoneNumber: object?.profile?.phoneNumber,
-    position: object?.profile?.position,
-    age: object?.profile?.age,
+    name: object?.name,
+    email: object?.email,
   };
 };
 

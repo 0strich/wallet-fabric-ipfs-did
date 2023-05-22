@@ -35,12 +35,9 @@ const postLogin = async (req, res) => {
   try {
     const { email } = req.body;
     const userDocs = await service.readByEmail(UserCredentials, email);
-    const authAttemptDocs = await service.readOne(AuthAttempt, {
-      userId: userDocs?._id,
-    });
 
     // accessToken 생성
-    const jwtPayload = payload.accessToken(authAttemptDocs);
+    const jwtPayload = payload.accessToken(userDocs);
     const accessToken = await jwt.createAccessToken(jwtPayload);
 
     return cwr.createWebResp(res, 200, { accessToken });
@@ -68,71 +65,11 @@ const getProfile = async (req, res) => {
   try {
     const { id } = req.decoded;
     const docs = await service.readById(UserCredentials, id);
-    const profileInfo = payload.adminProfileInfo(docs);
+    const profileInfo = payload.profileInfo(docs);
 
     return cwr.createWebResp(res, 200, profileInfo);
   } catch (error) {
     return cwr.errorWebResp(res, 403, errors.E00039, error.message);
-  }
-};
-
-// 프로필 수정
-const patchProfile = async (req, res) => {
-  try {
-    const { id } = req.decoded;
-    const body = req.body;
-
-    // 프로필 수정
-    const profilePayload = payload.adminProfile(body);
-    const profileUpdate = { profile: profilePayload };
-    const docs = await service.updateById(UserCredentials, id, profileUpdate);
-
-    // accessToken 응답
-    const jwtPayload = payload.adminAccessToken(docs);
-    const accessToken = await jwt.createAccessToken(jwtPayload);
-
-    return cwr.createWebResp(res, 200, { accessToken });
-  } catch (error) {
-    return cwr.errorWebResp(res, 403, errors.E00049, error.message);
-  }
-};
-
-// 비밀번호 변경
-const patchPassword = async (req, res) => {
-  try {
-    const { id } = req.decoded;
-    const body = req.body;
-
-    // docs 조회
-    const docs = await service.readById(UserCredentials, id);
-
-    const authValuesUpdate = payload.adminAuthValues(body);
-    Object.assign(docs.authValues, authValuesUpdate);
-    await service.updateById(UserCredentials, id, docs);
-
-    return cwr.createWebResp(res, 200, { success: "비밀번호 변경 성공" });
-  } catch (error) {
-    return cwr.errorWebResp(res, 403, errors.E00059, error.message);
-  }
-};
-
-// 화원 탈퇴(추후 수정)
-const deleteAccount = async (req, res) => {
-  try {
-    const { id } = req.decoded;
-
-    return cwr.createWebResp(res, 200, { delete: "success" });
-  } catch (error) {
-    return cwr.errorWebResp(res, 403, errors.E00069, error.message);
-  }
-};
-
-// 토큰 검증
-const getTokenValid = async (req, res) => {
-  try {
-    return cwr.createWebResp(res, 200, { success: true });
-  } catch (error) {
-    return cwr.errorWebResp(res, 403, errors.E00019, error.message);
   }
 };
 
@@ -156,9 +93,5 @@ module.exports = {
   postLogin,
   postLogout,
   getProfile,
-  patchProfile,
-  patchPassword,
-  deleteAccount,
-  getTokenValid,
   getAccessTokenByExpired,
 };
