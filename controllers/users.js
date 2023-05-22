@@ -1,6 +1,6 @@
 // models
-const Auths = require("models/auths/index");
-const Admins = require("models/users/index");
+const AuthAttempt = require("models/authAttempt");
+const UserCredentials = require("models/userCredentials");
 // services
 const service = require("services/index");
 // utils
@@ -14,20 +14,15 @@ const { errors } = require("utils/errors/index");
 const postRegister = async (req, res) => {
   try {
     const body = req.body;
-    const adminPayload = payload.adminRegister(body);
-    const adminDocs = await service.create(Admins, adminPayload);
+    const userPayload = payload.register(body);
+    const docs = await service.create(UserCredentials, userPayload);
 
-    // auths collection 생성(admin)
-    const authPayload = { admin: adminDocs?._id };
-    const authDocs = await service.create(Auths, authPayload);
+    // authAttempt 생성
+    await service.create(AuthAttempt, { userId: docs?._id });
 
     // accessToken 생성
-    const jwtPayload = payload.adminAccessToken(adminDocs, authDocs);
+    const jwtPayload = payload.accessToken(docs);
     const accessToken = await jwt.createAccessToken(jwtPayload);
-    const refreshToken = await jwt.createRefreshToken(jwtPayload);
-
-    // refersToken 저장
-    await service.updateById(Auths, authDocs?._id, { refreshToken });
 
     return cwr.createWebResp(res, 200, { accessToken });
   } catch (error) {
@@ -39,16 +34,14 @@ const postRegister = async (req, res) => {
 const postLogin = async (req, res) => {
   try {
     const { email } = req.body;
-    const adminDocs = await service.readByEmail(Admins, email);
-    const authDocs = await service.readOne(Auths, { admin: adminDocs?._id });
+    const userDocs = await service.readByEmail(UserCredentials, email);
+    const authAttemptDocs = await service.readOne(AuthAttempt, {
+      userId: userDocs?._id,
+    });
 
     // accessToken 생성
-    const jwtPayload = payload.adminAccessToken(adminDocs, authDocs);
+    const jwtPayload = payload.accessToken(authAttemptDocs);
     const accessToken = await jwt.createAccessToken(jwtPayload);
-    const refreshToken = await jwt.createRefreshToken(jwtPayload);
-
-    // refersToken 저장
-    await service.updateById(Auths, authDocs?._id, { refreshToken });
 
     return cwr.createWebResp(res, 200, { accessToken });
   } catch (error) {
@@ -62,7 +55,7 @@ const postLogout = async (req, res) => {
     const { authId } = req.decoded;
 
     // db refreshToken 삭제
-    await service.updateById(Auths, authId, { refreshToken: null });
+    await service.updateById(AuthAttempt, authId, { refreshToken: null });
 
     return cwr.createWebResp(res, 200, { success: true });
   } catch (error) {
@@ -74,7 +67,7 @@ const postLogout = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const { id } = req.decoded;
-    const docs = await service.readById(Admins, id);
+    const docs = await service.readById(UserCredentials, id);
     const profileInfo = payload.adminProfileInfo(docs);
 
     return cwr.createWebResp(res, 200, profileInfo);
@@ -92,7 +85,7 @@ const patchProfile = async (req, res) => {
     // 프로필 수정
     const profilePayload = payload.adminProfile(body);
     const profileUpdate = { profile: profilePayload };
-    const docs = await service.updateById(Admins, id, profileUpdate);
+    const docs = await service.updateById(UserCredentials, id, profileUpdate);
 
     // accessToken 응답
     const jwtPayload = payload.adminAccessToken(docs);
@@ -111,11 +104,11 @@ const patchPassword = async (req, res) => {
     const body = req.body;
 
     // docs 조회
-    const docs = await service.readById(Admins, id);
+    const docs = await service.readById(UserCredentials, id);
 
     const authValuesUpdate = payload.adminAuthValues(body);
     Object.assign(docs.authValues, authValuesUpdate);
-    await service.updateById(Admins, id, docs);
+    await service.updateById(UserCredentials, id, docs);
 
     return cwr.createWebResp(res, 200, { success: "비밀번호 변경 성공" });
   } catch (error) {

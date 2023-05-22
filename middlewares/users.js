@@ -1,6 +1,6 @@
 // models
-const Auths = require("models/auths/index");
-const Admins = require("models/users/index");
+const AuthAttempt = require("models/authAttempt");
+const UserCredentials = require("models/userCredentials");
 // services
 const service = require("services/index");
 // utils
@@ -32,7 +32,7 @@ const postRegister = async (req, res, next) => {
     const { email, password, passwordConfirm, agreeService, agreePrivacy } =
       req.body;
 
-    const docs = await service.readByEmail(Admins, email);
+    const docs = await service.readByEmail(UserCredentials, email);
 
     if (!agreeService) {
       // 서비스 이용 동의 검증
@@ -65,7 +65,7 @@ const postLogin = async (req, res, next) => {
     const { email, password } = req.body;
 
     // 관리자 계정 조회
-    const docs = await service.readByEmail(Admins, email);
+    const docs = await service.readByEmail(UserCredentials, email);
 
     // 계정 유무 체크
     if (!docs) {
@@ -74,7 +74,7 @@ const postLogin = async (req, res, next) => {
 
     // 최근 인증 정보 조회
     const authPayload = { admin: docs?._id };
-    const authDocs = await service.readOne(Auths, authPayload);
+    const authDocs = await service.readOne(AuthAttempt, authPayload);
 
     // 비밀번호 잠김 확인(시간에 따른 해제)
     if (authDocs?.isLock) {
@@ -96,7 +96,7 @@ const postLogin = async (req, res, next) => {
     // 인증관련 해제
     const authUpdate = payload.authReset({});
     Object.assign(authDocs, authUpdate);
-    await service.updateById(Auths, authDocs?._id, authDocs);
+    await service.updateById(AuthAttempt, authDocs?._id, authDocs);
 
     next();
   } catch (error) {
@@ -111,7 +111,7 @@ const patchPassword = async (req, res, next) => {
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
 
     // 관리자 계정 조회
-    const { authValues } = await service.readById(Admins, id);
+    const { authValues } = await service.readById(UserCredentials, id);
     const { password, salt } = authValues;
     const isVerified = await crypto.verify(oldPassword, password, salt);
 

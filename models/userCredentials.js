@@ -2,9 +2,10 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const adminAuthValuesSchema = Schema(
+const userCredentialsSchema = Schema(
   {
-    email: { type: String, unique: true }, // 이메일
+    name: { type: String, unique: true, default: "" }, // 이메일
+    email: { type: String, unique: true, default: "" }, // 이메일
     password: { type: String, required: true, trim: true }, // 비밀번호
     salt: { type: String, required: true }, // 솔트
     createdAt: { type: Date, default: Date.now }, // 생성일
@@ -13,4 +14,4 @@ const adminAuthValuesSchema = Schema(
   { timestamps: true }
 );
 
-module.exports = adminAuthValuesSchema;
+module.exports = mongoose.model("user_credentials", userCredentialsSchema);

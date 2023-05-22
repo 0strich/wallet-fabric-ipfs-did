@@ -1,18 +1,18 @@
-const util = require('util');
-const jwt = require('jsonwebtoken');
-const cwr = require('./createWebResp');
+const util = require("util");
+const jwt = require("jsonwebtoken");
+const cwr = require("./createWebResp");
 // errors
-const {errors} = require('./errors/index');
+const { errors } = require("./errors/index");
 
 // accessToken 발행
-const createAccessToken = async (payload, expiresIn = '20m') => {
+const createAccessToken = async (payload, expiresIn = "20m") => {
   try {
     const secretOrPrivateKey = process.env.ACCESS_TOKEN_SECRET;
-    const options = {expiresIn};
+    const options = { expiresIn };
     const accessToken = await util.promisify(jwt.sign)(
       payload,
       secretOrPrivateKey,
-      options,
+      options
     );
 
     return accessToken;
@@ -22,14 +22,14 @@ const createAccessToken = async (payload, expiresIn = '20m') => {
 };
 
 // refreshToken 발행
-const createRefreshToken = async (payload, expiresIn = '30d') => {
+const createRefreshToken = async (payload, expiresIn = "30d") => {
   try {
     const secretOrPrivateKey = process.env.REFRESH_TOKEN_SECRET;
-    const options = {expiresIn};
+    const options = { expiresIn };
     const refreshToken = await util.promisify(jwt.sign)(
       payload,
       secretOrPrivateKey,
-      options,
+      options
     );
 
     return refreshToken;
@@ -43,7 +43,7 @@ const createAccessTokenByRefreshToken = async (req, res, next) => {
   try {
     const bearerJwt = req.headers.authorization || req.headers.Authorization;
 
-    if (!bearerJwt || !bearerJwt.startsWith('Bearer ')) {
+    if (!bearerJwt || !bearerJwt.startsWith("Bearer ")) {
       return cwr.errorWebResp(res, 401, errors.E90000);
     }
 
@@ -52,20 +52,20 @@ const createAccessTokenByRefreshToken = async (req, res, next) => {
     const decoded = await jwt.verify(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET,
-      {ignoreExpiration: true},
+      { ignoreExpiration: true },
       (decoded, error) => {
         if (error) {
           return error;
         }
         return decoded;
-      },
+      }
     );
-    console.log('decoded: ', decoded);
+    console.log("decoded: ", decoded);
 
     req.decoded = decoded;
     next();
   } catch (error) {
-    console.log('error: ', error);
+    console.log("error: ", error);
     return cwr.errorWebResp(res, 401, errors.E90001);
   }
 };
@@ -74,7 +74,7 @@ const verify = async (req, res, next) => {
   try {
     const bearerJwt = req.headers.authorization || req.headers.Authorization;
 
-    if (!bearerJwt || !bearerJwt.startsWith('Bearer ')) {
+    if (!bearerJwt || !bearerJwt.startsWith("Bearer ")) {
       return cwr.errorWebResp(res, 401, errors.E90000);
     }
 
@@ -82,7 +82,7 @@ const verify = async (req, res, next) => {
 
     const decoded = await util.promisify(jwt.verify)(
       accessToken,
-      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_SECRET
     );
     req.decoded = decoded;
     next();

@@ -28,7 +28,7 @@ const readOne = async (model, conditions) => {
 
 // 조회(이메일)
 const readByEmail = async (model, email) => {
-  const conditions = { "authValues.email": email };
+  const conditions = { email };
   const docs = await model.findOne(conditions).sort(sortByLatest).lean();
   return docs;
 };
