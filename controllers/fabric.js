@@ -1,8 +1,10 @@
 const { Wallets, Gateway } = require("fabric-network");
 const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
-const path = require("path");
+const cwr = require("utils/createWebResp");
 const { ccpPath, walletPath } = require("../utils/fabric");
+// errors
+const { errors } = require("utils/errors/index");
 
 // 관리자 생성
 const enrollAdmin = async (req, res, next) => {
@@ -16,7 +18,6 @@ const enrollAdmin = async (req, res, next) => {
 
     const adminExists = await wallet.get("admin");
     if (adminExists) {
-      console.log('"admin" already exists in the wallet');
       return;
     }
 
@@ -36,30 +37,28 @@ const enrollAdmin = async (req, res, next) => {
     console.log(
       'Successfully enrolled admin user "admin" and imported it into the wallet'
     );
+    return cwr.createWebResp(res, 200, { success: true });
   } catch (error) {
-    process.exit(1);
+    return cwr.errorWebResp(res, 403, errors.E00009, error.message);
   }
 };
 
 // 사용자 생성
 const registerUser = async (req, res, next) => {
   try {
+    const { enrollmentID } = req.body;
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
-
     const caURL = ccp.certificateAuthorities["ca.org1.example.com"].url;
     const ca = new FabricCAServices(caURL);
-
     const wallet = await Wallets.newFileSystemWallet(walletPath);
+    const userExists = await wallet.get(enrollmentID);
 
-    const userExists = await wallet.get("User1");
     if (userExists) {
-      console.log('"User1" already exists');
       return;
     }
 
     const adminIdentity = await wallet.get("admin");
     if (!adminIdentity) {
-      console.log('"admin"');
       return;
     }
 
@@ -71,15 +70,17 @@ const registerUser = async (req, res, next) => {
     const secret = await ca.register(
       {
         affiliation: "org1.department1",
-        enrollmentID: "User1",
+        enrollmentID,
         role: "client",
       },
       adminUser
     );
+
     const enrollment = await ca.enroll({
-      enrollmentID: "User1",
+      enrollmentID,
       enrollmentSecret: secret,
     });
+
     const x509Identity = {
       credentials: {
         certificate: enrollment.certificate,
@@ -88,15 +89,15 @@ const registerUser = async (req, res, next) => {
       mspId: "Org1MSP",
       type: "X.509",
     };
-    await wallet.put("User1", x509Identity);
-    console.log('"User1" and imported it into the wallet');
+    await wallet.put(enrollmentID, x509Identity);
+    return cwr.createWebResp(res, 200, { success: true });
   } catch (error) {
-    process.exit(1);
+    return cwr.errorWebResp(res, 403, errors.E00009, error.message);
   }
 };
 
 // 조회
-const getQuery = async () => {
+const getQuery = async (req, res, next) => {
   try {
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
 
@@ -104,7 +105,6 @@ const getQuery = async () => {
 
     const identity = await wallet.get("User1");
     if (!identity) {
-      console.log('"User1"');
       return;
     }
 
@@ -124,9 +124,9 @@ const getQuery = async () => {
       "QueryAssets",
       '{"selector":{"docType":"employee"}}'
     );
-    console.log(`result is: ${result.toString()}`);
+    return cwr.createWebResp(res, 200, JSON.parse(result.toString()));
   } catch (error) {
-    process.exit(1);
+    return cwr.errorWebResp(res, 403, errors.E00009, error.message);
   }
 };
 
