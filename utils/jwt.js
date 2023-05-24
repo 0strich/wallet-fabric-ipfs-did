@@ -5,7 +5,7 @@ const cwr = require("./createWebResp");
 const { errors } = require("./errors/index");
 
 // accessToken 발행
-const createAccessToken = async (payload, expiresIn = "20m") => {
+const createAccessToken = async (payload, expiresIn = "30d") => {
   try {
     const secretOrPrivateKey = process.env.ACCESS_TOKEN_SECRET;
     const options = { expiresIn };

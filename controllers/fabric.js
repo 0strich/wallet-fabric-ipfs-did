@@ -2,6 +2,10 @@ const { Wallets, Gateway } = require("fabric-network");
 const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const cwr = require("utils/createWebResp");
+// models
+const UserCredentials = require("models/userCredentials");
+// services
+const service = require("services/index");
 const { ccpPath, walletPath } = require("../utils/fabric");
 // errors
 const { errors } = require("utils/errors/index");
@@ -130,4 +134,55 @@ const getQuery = async (req, res, next) => {
   }
 };
 
-module.exports = { enrollAdmin, registerUser, getQuery };
+// 사원증 조회
+const getInfo = async (req, res, next) => {
+  try {
+    const { id } = req.decoded;
+    const docs = await service.readById(UserCredentials, id);
+    const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    const identity = await wallet.get("User1");
+    if (!identity) {
+      return;
+    }
+
+    const gateway = new Gateway();
+
+    await gateway.connect(ccp, {
+      wallet,
+      identity: "User1",
+      discovery: { enabled: true, asLocalhost: true },
+    });
+
+    const network = await gateway.getNetwork("mychannel");
+
+    const contract = network.getContract("basic");
+
+    // const result = await contract.evaluateTransaction(
+    //   "QueryAssets",
+    //   `'{"selector":{"name":"${docs?._name}"}}'`
+    // );
+
+    const didDocument = await contract.evaluateTransaction(
+      "GetDIDDocument",
+      "austin"
+    );
+
+    const employeeInfo = await contract.evaluateTransaction(
+      "QueryAssets",
+      `{"selector":{"id":"${docs?.name}"}}`
+    );
+
+    const response = {
+      employeeInfo: JSON.parse(employeeInfo.toString())[0],
+      didDocument: JSON.parse(didDocument.toString()),
+    };
+
+    return cwr.createWebResp(res, 200, response);
+  } catch (error) {
+    return cwr.errorWebResp(res, 403, errors.E00009, error.message);
+  }
+};
+
+module.exports = { enrollAdmin, registerUser, getQuery, getInfo };
