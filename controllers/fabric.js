@@ -159,14 +159,9 @@ const getInfo = async (req, res, next) => {
 
     const contract = network.getContract("basic");
 
-    // const result = await contract.evaluateTransaction(
-    //   "QueryAssets",
-    //   `'{"selector":{"name":"${docs?._name}"}}'`
-    // );
-
     const didDocument = await contract.evaluateTransaction(
       "GetDIDDocument",
-      "austin"
+      docs?.name
     );
 
     const employeeInfo = await contract.evaluateTransaction(
@@ -185,4 +180,41 @@ const getInfo = async (req, res, next) => {
   }
 };
 
-module.exports = { enrollAdmin, registerUser, getQuery, getInfo };
+// 사원증 검증
+const postVerify = async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    const identity = await wallet.get("User1");
+    if (!identity) {
+      return;
+    }
+
+    const gateway = new Gateway();
+
+    await gateway.connect(ccp, {
+      wallet,
+      identity: "User1",
+      discovery: { enabled: true, asLocalhost: true },
+    });
+
+    const network = await gateway.getNetwork("mychannel");
+
+    const contract = network.getContract("basic");
+
+    const verifyResult = await contract.evaluateTransaction(
+      "verifyEmployee",
+      id
+    );
+
+    const response = JSON.parse(verifyResult.toString());
+
+    return cwr.createWebResp(res, 200, response);
+  } catch (error) {
+    return cwr.errorWebResp(res, 403, errors.E00009, error.message);
+  }
+};
+
+module.exports = { enrollAdmin, registerUser, getQuery, getInfo, postVerify };

@@ -16,4 +16,7 @@ router.get("/getQuery", controller.getQuery);
 // 사원증 조회
 router.get("/getInfo", jwt.verify, controller.getInfo);
 
+// 사원증 검증
+router.post("/verify", jwt.verify, controller.postVerify);
+
 module.exports = router;
