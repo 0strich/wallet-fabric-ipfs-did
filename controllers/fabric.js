@@ -104,13 +104,16 @@ const registerUser = async (req, res, next) => {
 const getQuery = async (req, res, next) => {
   try {
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
+    console.log("ccp: ", ccp);
 
     const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log("wallet: ", wallet);
 
     const identity = await wallet.get("User1");
     if (!identity) {
       return;
     }
+    console.log("identity: ", identity);
 
     const gateway = new Gateway();
 
@@ -124,10 +127,11 @@ const getQuery = async (req, res, next) => {
 
     const contract = network.getContract("basic");
 
-    const result = await contract.evaluateTransaction(
+    const result = await contract.submitTransaction(
       "QueryAssets",
       '{"selector":{"docType":"employee"}}'
     );
+    console.log("result: ", result);
     return cwr.createWebResp(res, 200, JSON.parse(result.toString()));
   } catch (error) {
     return cwr.errorWebResp(res, 403, errors.E00009, error.message);
@@ -159,12 +163,12 @@ const getInfo = async (req, res, next) => {
 
     const contract = network.getContract("basic");
 
-    const didDocument = await contract.evaluateTransaction(
+    const didDocument = await contract.submitTransaction(
       "GetDIDDocument",
       docs?.name
     );
 
-    const employeeInfo = await contract.evaluateTransaction(
+    const employeeInfo = await contract.submitTransaction(
       "QueryAssets",
       `{"selector":{"id":"${docs?.name}"}}`
     );
@@ -184,6 +188,7 @@ const getInfo = async (req, res, next) => {
 const postVerify = async (req, res, next) => {
   try {
     const { id } = req.body;
+    console.log("id: ", id);
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
@@ -204,10 +209,7 @@ const postVerify = async (req, res, next) => {
 
     const contract = network.getContract("basic");
 
-    const verifyResult = await contract.evaluateTransaction(
-      "verifyEmployee",
-      id
-    );
+    const verifyResult = await contract.submitTransaction("verifyEmployee", id);
 
     const response = JSON.parse(verifyResult.toString());
 
