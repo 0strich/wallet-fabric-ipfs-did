@@ -142,7 +142,6 @@ const getInfo = async (req, res, next) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
     const identity = await wallet.get("User1");
-    console.log("identity: ", identity);
     if (!identity) {
       return;
     }
@@ -163,13 +162,11 @@ const getInfo = async (req, res, next) => {
       "GetDIDDocument",
       docs?.name
     );
-    console.log("didDocument: ", didDocument);
 
     const employeeInfo = await contract.submitTransaction(
       "QueryAssets",
       `{"selector":{"id":"${docs?.name}"}}`
     );
-    console.log("employeeInfo: ", employeeInfo);
 
     const response = {
       employeeInfo: JSON.parse(employeeInfo.toString())[0],
@@ -186,7 +183,6 @@ const getInfo = async (req, res, next) => {
 const postVerify = async (req, res, next) => {
   try {
     const { id } = req.body;
-    console.log("id: ", id);
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
