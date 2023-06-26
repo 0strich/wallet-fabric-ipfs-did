@@ -137,13 +137,9 @@ const getQuery = async (req, res, next) => {
 const getInfo = async (req, res, next) => {
   try {
     const { id } = req.decoded;
-    console.log("id: ", id);
     const docs = await service.readById(UserCredentials, id);
-    console.log("docs: ", docs);
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
-    console.log("ccp: ", ccp);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
-    console.log("wallet: ", wallet);
 
     const identity = await wallet.get("User1");
     if (!identity) {
