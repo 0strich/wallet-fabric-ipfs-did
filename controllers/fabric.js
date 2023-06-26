@@ -106,6 +106,7 @@ const getQuery = async (req, res, next) => {
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     const identity = await wallet.get("User1");
+    console.log("identity: ", identity);
     if (!identity) {
       console.log("identity: ", identity);
       return;
