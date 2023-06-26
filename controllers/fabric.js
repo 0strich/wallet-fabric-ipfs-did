@@ -106,9 +106,7 @@ const getQuery = async (req, res, next) => {
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     const identity = await wallet.get("User1");
-    console.log("identity: ", identity);
     if (!identity) {
-      console.log("x identity: ", identity);
       return;
     }
 
@@ -128,7 +126,6 @@ const getQuery = async (req, res, next) => {
       "QueryAssets",
       '{"selector":{"docType":"employee"}}'
     );
-    console.log("result: ", result);
 
     return cwr.createWebResp(res, 200, JSON.parse(result.toString()));
   } catch (error) {
@@ -145,10 +142,10 @@ const getInfo = async (req, res, next) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
     const identity = await wallet.get("User1");
+    console.log("identity: ", identity);
     if (!identity) {
       return;
     }
-    console.log("identity: ", identity);
 
     const gateway = new Gateway();
 
