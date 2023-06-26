@@ -104,16 +104,11 @@ const registerUser = async (req, res, next) => {
 const getQuery = async (req, res, next) => {
   try {
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
-    console.log("ccp: ", ccp);
-
     const wallet = await Wallets.newFileSystemWallet(walletPath);
-    console.log("wallet: ", wallet);
-
     const identity = await wallet.get("User1");
     if (!identity) {
       return;
     }
-    console.log("identity: ", identity);
 
     const gateway = new Gateway();
 
@@ -142,14 +137,19 @@ const getQuery = async (req, res, next) => {
 const getInfo = async (req, res, next) => {
   try {
     const { id } = req.decoded;
+    console.log("id: ", id);
     const docs = await service.readById(UserCredentials, id);
+    console.log("docs: ", docs);
     const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
+    console.log("ccp: ", ccp);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log("wallet: ", wallet);
 
     const identity = await wallet.get("User1");
     if (!identity) {
       return;
     }
+    console.log("identity: ", identity);
 
     const gateway = new Gateway();
 
@@ -167,11 +167,13 @@ const getInfo = async (req, res, next) => {
       "GetDIDDocument",
       docs?.name
     );
+    console.log("didDocument: ", didDocument);
 
     const employeeInfo = await contract.submitTransaction(
       "QueryAssets",
       `{"selector":{"id":"${docs?.name}"}}`
     );
+    console.log("employeeInfo: ", employeeInfo);
 
     const response = {
       employeeInfo: JSON.parse(employeeInfo.toString())[0],
