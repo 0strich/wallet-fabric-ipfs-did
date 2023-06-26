@@ -28,7 +28,7 @@ const connect = async (DB_URI) => {
 };
 
 // DB 연동
-const connectDB = async () => {
+const connectDB = async (req, res, next) => {
   const DB_URI = `mongodb://${config.mongodbUrl}/${config.mongodbName}`;
   console.log("DB URI : ", DB_URI);
   try {
