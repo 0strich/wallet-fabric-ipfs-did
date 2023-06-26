@@ -107,6 +107,7 @@ const getQuery = async (req, res, next) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     const identity = await wallet.get("User1");
     if (!identity) {
+      console.log("identity: ", identity);
       return;
     }
 
@@ -127,6 +128,7 @@ const getQuery = async (req, res, next) => {
       '{"selector":{"docType":"employee"}}'
     );
     console.log("result: ", result);
+
     return cwr.createWebResp(res, 200, JSON.parse(result.toString()));
   } catch (error) {
     return cwr.errorWebResp(res, 403, errors.E00009, error.message);
