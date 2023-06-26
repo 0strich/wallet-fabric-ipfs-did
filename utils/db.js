@@ -10,9 +10,7 @@ const connect = async (DB_URI) => {
       return mongoose.connection;
     } else {
       const connection = await mongoose.connect(DB_URI, {
-        user: config.mongodbUser,
-        pass: config.mongodbPassword,
-        dbName: config.mongodbDBname,
+        dbName: "fabric",
         useUnifiedTopology: true,
         useNewUrlParser: true,
         useCreateIndex: true,
